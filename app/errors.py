@@ -9,6 +9,18 @@ class DomainError(Exception):
     def __init__(self, message: str):
         self.message = message
 
+class DuplicatePhone(DomainError):
+    code = "DUPLICATE_PHONE"
+    status_code = 409
+    def __init__(self):
+        super().__init__("Phone already registered")
+
+class NotFoundError(DomainError):
+    status_code = 404
+    def __init__(self, code: str, message: str):
+        self.code = code
+        super().__init__(message)
+
 def app_error_handler(request: Request, exc: DomainError):
     return JSONResponse(status_code=exc.status_code, content={"error": {"code": exc.code, "message": exc.message}})
 
