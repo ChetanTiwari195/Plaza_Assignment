@@ -1,10 +1,6 @@
 from pydantic import BaseModel, Field, constr
-from enum import Enum
 from typing import Optional
-
-class CarType(str, Enum):
-    HATCHBACK = "HATCHBACK"
-    SEDAN = "SEDAN"
+from app.domain.pricing import CarType
 
 class UserCreate(BaseModel):
     name: str = Field(..., min_length=1)
