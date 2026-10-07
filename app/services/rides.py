@@ -29,7 +29,7 @@ class RideNotOngoing(DomainError):
     def __init__(self):
         super().__init__("Ride is not ongoing")
 
-def book_ride(conn, user_id: int, p_lat: float, p_lng: float, req_car_type: str, coupon_code: str, now: datetime, radius: float, surge_mode: str = "OFF") -> dict:
+def book_ride(conn, user_id: int, p_lat: float, p_lng: float, req_car_type: str, coupon_code: str, now: datetime, radius: float, surge_mode: str = "OFF", matching_strategy: str = "NEAREST") -> dict:
     with transaction(conn):
         if not users_repo.get_by_id(conn, user_id):
             raise NotFoundError("USER_NOT_FOUND", "User not found")
@@ -50,11 +50,14 @@ def book_ride(conn, user_id: int, p_lat: float, p_lng: float, req_car_type: str,
             for d in drivers:
                 dist = haversine_km(p_lat, p_lng, d["lat"], d["lng"])
                 if dist <= radius:
-                    candidates.append((dist, d["id"], d))
+                    candidates.append((dist, d["rating"], d["id"], d))
             
-            candidates.sort(key=lambda x: (x[0], x[1]))
+            if matching_strategy == "HIGHEST_RATED":
+                candidates.sort(key=lambda x: (-x[1], x[0], x[2]))
+            else:
+                candidates.sort(key=lambda x: (x[0], x[2]))
             
-            for _, did, d in candidates:
+            for dist, rating, did, d in candidates:
                 if rides_repo.claim_driver(conn, did):
                     assigned_driver = d
                     break
