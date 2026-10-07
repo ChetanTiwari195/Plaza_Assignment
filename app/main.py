@@ -36,4 +36,10 @@ def create_app(settings: Settings = None) -> FastAPI:
     def health():
         return {"status": "ok"}
         
+    from fastapi.responses import RedirectResponse
+    @app.get("/", include_in_schema=False)
+    def root():
+        return RedirectResponse(url="/docs")
+
+        
     return app
