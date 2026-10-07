@@ -102,6 +102,8 @@ def _format_ride(conn, row) -> dict:
                 "discount_paise": ride["discount_paise"],
                 "total_paise": ride["total_fare_paise"]
             }
+        if ride["cancellation_fee_paise"] is not None:
+            ride["cancellation_fee_paise"] = ride["cancellation_fee_paise"]
     return ride
 
 def get_ride(conn, ride_id: int) -> dict:
@@ -142,5 +144,21 @@ def end_ride(conn, ride_id: int, e_lat: float, e_lng: float, now: datetime) -> d
         
         rides_repo.end_ride(conn, ride_id, e_lat, e_lng, dist, breakdown.base_fare_paise, breakdown.discount_paise, breakdown.total_paise, now.isoformat())
         rides_repo.release_driver(conn, ride["driver_id"], e_lat, e_lng)
+        
+    return get_ride(conn, ride_id)
+
+def cancel_ride(conn, ride_id: int, now: datetime) -> dict:
+    with transaction(conn):
+        ride = rides_repo.get_ride(conn, ride_id)
+        if not ride:
+            raise NotFoundError("RIDE_NOT_FOUND", "Ride not found")
+        if ride["status"] != "ONGOING":
+            raise RideNotOngoing()
+            
+        temp_fare = PricingEngine.compute(CarType(ride["requested_car_type"]), 0, ride["surge_multiplier"])
+        fee = PricingEngine.compute_cancellation_fee(temp_fare.surged_fare_paise)
+        
+        rides_repo.cancel_ride(conn, ride_id, fee, now.isoformat())
+        rides_repo.release_driver(conn, ride["driver_id"], ride["pickup_lat"], ride["pickup_lng"])
         
     return get_ride(conn, ride_id)

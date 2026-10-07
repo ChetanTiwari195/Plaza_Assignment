@@ -74,3 +74,7 @@ class PricingEngine:
             discount_paise=discount_paise,
             total_paise=total_paise
         )
+
+    @staticmethod
+    def compute_cancellation_fee(surged_fare_paise: int) -> int:
+        return surged_fare_paise * 5 // 100

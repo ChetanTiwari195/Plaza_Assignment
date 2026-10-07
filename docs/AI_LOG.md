@@ -33,5 +33,9 @@
 
 ## PR 9: Matching Strategy (Bonus)
 - **Prompted:** Add configuration for matching strategy (nearest vs highest rated).
-- **Rejected/Rewritten:** Did not use a complex Strategy design pattern or dynamic imports. Just added an `if matching_strategy` block changing the `lambda` sort key of the candidates array.
 - **Why:** Keeping the dispatch logic in one readable linear function makes it much easier to reason about tie-breaking rules compared to scattered objects.
+
+## PR 10: Cancellation fee (Bonus)
+- **Prompted:** Add cancellation endpoint computing a 5% fee on surged fare.
+- **Rejected/Rewritten:** Did not modify the original `.compute()` engine to handle 0-distance specifically. Used `.compute(..., distance_km=0, ...)` explicitly to get the minimum fare before calculating the 5%.
+- **Why:** The existing domain logic already cleanly handles 0 distance by falling back to `min_fare_paise`, allowing maximum reuse and minimizing bugs.

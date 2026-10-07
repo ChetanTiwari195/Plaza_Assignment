@@ -30,6 +30,12 @@ def end_ride(conn: sqlite3.Connection, ride_id: int, e_lat: float, e_lng: float,
         (e_lat, e_lng, dist, base_fare, discount, total, ended_at, ride_id)
     )
 
+def cancel_ride(conn: sqlite3.Connection, ride_id: int, fee: int, ended_at: str):
+    conn.execute(
+        "UPDATE rides SET status = 'CANCELLED', cancellation_fee_paise = ?, ended_at = ? WHERE id = ?",
+        (fee, ended_at, ride_id)
+    )
+
 def release_driver(conn: sqlite3.Connection, driver_id: int, lat: float, lng: float):
     conn.execute("UPDATE drivers SET status = 'AVAILABLE', lat = ?, lng = ? WHERE id = ?", (lat, lng, driver_id))
 
