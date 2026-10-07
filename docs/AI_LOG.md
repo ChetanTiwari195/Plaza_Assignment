@@ -11,5 +11,9 @@
 
 ## PR 3: Pricing engine + car types
 - **Prompted:** Add pure pricing engine domain logic for computing ride fares.
-- **Rejected/Rewritten:** Did not use a strategy pattern or dependency injection for rate cards. Just used a simple dictionary registry `RATE_CARDS`.
 - **Why:** YAGNI. A simple registry perfectly serves the requirement to define car types in one place with minimal overhead.
+
+## PR 4: Coupons
+- **Prompted:** Add coupon models, registry, API endpoints, and validation logic.
+- **Rejected/Rewritten:** Implemented a simple Protocol for coupons and a registry instead of complex inheritance. Stored codes upper-case.
+- **Why:** To make adding new coupon types just a single new class, keeping things decoupled but not over-engineered.

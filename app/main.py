@@ -22,9 +22,11 @@ def create_app(settings: Settings = None) -> FastAPI:
     from app.api.users import router as users_router
     from app.api.drivers import router as drivers_router
     from app.api.pricing import router as pricing_router
+    from app.api.coupons import router as coupons_router
     app.include_router(users_router)
     app.include_router(drivers_router)
     app.include_router(pricing_router)
+    app.include_router(coupons_router)
     
     @app.get("/health")
     def health():
