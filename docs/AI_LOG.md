@@ -15,5 +15,9 @@
 
 ## PR 4: Coupons
 - **Prompted:** Add coupon models, registry, API endpoints, and validation logic.
-- **Rejected/Rewritten:** Implemented a simple Protocol for coupons and a registry instead of complex inheritance. Stored codes upper-case.
 - **Why:** To make adding new coupon types just a single new class, keeping things decoupled but not over-engineered.
+
+## PR 5: Book ride, free upgrade, end ride
+- **Prompted:** Add the core ride booking and ending logic, including atomic claim.
+- **Rejected/Rewritten:** Sorted drivers in pure Python instead of a geospatial SQL index. 
+- **Why:** Kept it lazy and simple per ponytail: haversine distance filtering in Python is extremely easy to read, uses no extensions, and perfectly fits the current constraints. SQLite's standard capabilities are completely sufficient for atomic row claiming via `UPDATE ... WHERE status = 'AVAILABLE'`.

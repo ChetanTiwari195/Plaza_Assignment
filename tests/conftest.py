@@ -17,10 +17,11 @@ def fake_clock():
     return FakeClock()
 
 @pytest.fixture
-def client(tmp_path):
+def client(tmp_path, fake_clock):
     db_path = str(tmp_path / "test.db")
     settings = Settings(db_path=db_path)
     app = create_app(settings)
+    app.state.clock = fake_clock
     return TestClient(app)
 
 def make_user(client: TestClient, name: str, phone: str) -> dict:

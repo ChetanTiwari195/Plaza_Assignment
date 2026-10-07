@@ -43,3 +43,16 @@ class CouponCreate(BaseModel):
         if info.data.get('type') == CouponType.FLAT and v is not None:
             raise ValueError("Flat coupon cannot have max_discount_paise")
         return v
+
+class LocationPoint(BaseModel):
+    lat: float = Field(..., ge=-90, le=90)
+    lng: float = Field(..., ge=-180, le=180)
+
+class RideBook(BaseModel):
+    user_id: int
+    pickup: LocationPoint
+    car_type: CarType
+    coupon_code: Optional[str] = None
+
+class RideEnd(BaseModel):
+    end_location: LocationPoint
