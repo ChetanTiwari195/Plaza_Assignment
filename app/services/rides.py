@@ -8,6 +8,7 @@ from app.services import coupons as coupons_service
 from app.domain.pricing import CarType, UPGRADE_PATH, PricingEngine
 from app.domain.geo import haversine_km
 from app.domain.coupons import build_coupon
+from app.domain.surge import SURGE_MODES
 from app.errors import DomainError, NotFoundError
 
 class UserHasActiveRide(DomainError):
@@ -28,7 +29,7 @@ class RideNotOngoing(DomainError):
     def __init__(self):
         super().__init__("Ride is not ongoing")
 
-def book_ride(conn, user_id: int, p_lat: float, p_lng: float, req_car_type: str, coupon_code: str, now: datetime, radius: float) -> dict:
+def book_ride(conn, user_id: int, p_lat: float, p_lng: float, req_car_type: str, coupon_code: str, now: datetime, radius: float, surge_mode: str = "OFF") -> dict:
     with transaction(conn):
         if not users_repo.get_by_id(conn, user_id):
             raise NotFoundError("USER_NOT_FOUND", "User not found")
@@ -69,9 +70,18 @@ def book_ride(conn, user_id: int, p_lat: float, p_lng: float, req_car_type: str,
         c_val = coupon_data["value"] if coupon_data else None
         c_max = coupon_data["max_discount_paise"] if coupon_data else None
         
+        provider = SURGE_MODES[surge_mode]()
+        all_avail = rides_repo.get_available_drivers(conn)
+        supply = sum(1 for d in all_avail if haversine_km(p_lat, p_lng, d["lat"], d["lng"]) <= radius)
+        
+        ongoing = rides_repo.get_ongoing_rides(conn)
+        demand = 1 + sum(1 for r in ongoing if haversine_km(p_lat, p_lng, r["pickup_lat"], r["pickup_lng"]) <= radius)
+        
+        surge_mult = provider.multiplier(demand, supply)
+        
         ride_id = rides_repo.insert_ride(
             conn, user_id, assigned_driver["id"], req_car_type, assigned_driver["car_type"],
-            p_lat, p_lng, 1.0, c_code, c_type, c_val, c_max, now.isoformat()
+            p_lat, p_lng, surge_mult, c_code, c_type, c_val, c_max, now.isoformat()
         )
         return get_ride(conn, ride_id)
 

@@ -17,7 +17,8 @@ def get_clock(request: Request):
 @router.post("", status_code=201)
 def book_ride(ride: RideBook, request: Request, db = Depends(get_db), clock = Depends(get_clock)):
     radius = request.app.state.settings.search_radius_km
-    return rides_service.book_ride(db, ride.user_id, ride.pickup.lat, ride.pickup.lng, ride.car_type.value, ride.coupon_code, clock.now(), radius)
+    surge_mode = getattr(request.app.state, "surge_mode", "OFF")
+    return rides_service.book_ride(db, ride.user_id, ride.pickup.lat, ride.pickup.lng, ride.car_type.value, ride.coupon_code, clock.now(), radius, surge_mode)
 
 @router.post("/{ride_id}/end")
 def end_ride(ride_id: int, req: RideEnd, db = Depends(get_db), clock = Depends(get_clock)):
