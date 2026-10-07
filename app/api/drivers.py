@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Request
-from app.api.schemas import DriverCreate, LocationUpdate
+from typing import Optional
+from app.api.schemas import DriverCreate, LocationUpdate, RideStatus
 from app.services import drivers as drivers_service
+from app.services import rides as rides_service
 from app.db import connect
 
 router = APIRouter(prefix="/drivers", tags=["Drivers"])
@@ -21,3 +23,7 @@ def get_driver(driver_id: int, db = Depends(get_db)):
 @router.put("/{driver_id}/location")
 def update_location(driver_id: int, loc: LocationUpdate, db = Depends(get_db)):
     return drivers_service.update_location(db, driver_id, loc.lat, loc.lng)
+
+@router.get("/{driver_id}/rides")
+def get_driver_rides(driver_id: int, status: Optional[RideStatus] = None, db = Depends(get_db)):
+    return rides_service.get_driver_rides(db, driver_id, status.value if status else None)

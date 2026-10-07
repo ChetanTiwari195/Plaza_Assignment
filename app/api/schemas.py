@@ -3,6 +3,11 @@ from typing import Optional
 from enum import Enum
 from app.domain.pricing import CarType
 
+class RideStatus(str, Enum):
+    ONGOING = "ONGOING"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
+
 class UserCreate(BaseModel):
     name: str = Field(..., min_length=1)
     phone: str = Field(..., min_length=1)
