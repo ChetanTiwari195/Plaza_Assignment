@@ -21,3 +21,8 @@
 - **Prompted:** Add the core ride booking and ending logic, including atomic claim.
 - **Rejected/Rewritten:** Sorted drivers in pure Python instead of a geospatial SQL index. 
 - **Why:** Kept it lazy and simple per ponytail: haversine distance filtering in Python is extremely easy to read, uses no extensions, and perfectly fits the current constraints. SQLite's standard capabilities are completely sufficient for atomic row claiming via `UPDATE ... WHERE status = 'AVAILABLE'`.
+
+## PR 6: Ride history
+- **Prompted:** Add ride history queries for users and drivers with optional status filtering.
+- **Rejected/Rewritten:** Avoided creating dedicated new endpoints under `/rides` for querying by user or driver ID. Instead attached them to the `/users/{id}/rides` and `/drivers/{id}/rides` endpoints.
+- **Why:** RESTful resource hierarchies keep the API surface intuitive. Using simple SQLite `ORDER BY id DESC` keeps pagination absent per requirements while maintaining chronological correctness.

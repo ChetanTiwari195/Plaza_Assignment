@@ -36,3 +36,23 @@ def release_driver(conn: sqlite3.Connection, driver_id: int, lat: float, lng: fl
 def get_available_drivers_by_type(conn: sqlite3.Connection, car_type: str) -> list[sqlite3.Row]:
     cur = conn.execute("SELECT * FROM drivers WHERE status = 'AVAILABLE' AND car_type = ?", (car_type,))
     return cur.fetchall()
+
+def get_rides_by_user(conn: sqlite3.Connection, user_id: int, status: Optional[str]) -> list[sqlite3.Row]:
+    query = "SELECT * FROM rides WHERE user_id = ?"
+    params = [user_id]
+    if status:
+        query += " AND status = ?"
+        params.append(status)
+    query += " ORDER BY id DESC"
+    cur = conn.execute(query, params)
+    return cur.fetchall()
+
+def get_rides_by_driver(conn: sqlite3.Connection, driver_id: int, status: Optional[str]) -> list[sqlite3.Row]:
+    query = "SELECT * FROM rides WHERE driver_id = ?"
+    params = [driver_id]
+    if status:
+        query += " AND status = ?"
+        params.append(status)
+    query += " ORDER BY id DESC"
+    cur = conn.execute(query, params)
+    return cur.fetchall()

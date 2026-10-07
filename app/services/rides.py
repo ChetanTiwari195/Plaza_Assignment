@@ -1,3 +1,4 @@
+from typing import Optional
 from datetime import datetime
 from app.db import transaction
 from app.repositories import rides as rides_repo
@@ -74,23 +75,39 @@ def book_ride(conn, user_id: int, p_lat: float, p_lng: float, req_car_type: str,
         )
         return get_ride(conn, ride_id)
 
-def get_ride(conn, ride_id: int) -> dict:
-    row = rides_repo.get_ride(conn, ride_id)
-    if not row:
-        raise NotFoundError("RIDE_NOT_FOUND", "Ride not found")
+def _format_ride(conn, row) -> dict:
     ride = dict(row)
     ride["driver"] = dict(drivers_repo.get_by_id(conn, ride["driver_id"]))
     ride["pickup"] = {"lat": ride["pickup_lat"], "lng": ride["pickup_lng"]}
     if ride["end_lat"] is not None:
         ride["end_location"] = {"lat": ride["end_lat"], "lng": ride["end_lng"]}
-        ride["fare"] = {
-            "slab_total_paise": ride["base_fare_paise"],
-            "base_fare_paise": ride["base_fare_paise"],
-            "surge_multiplier": ride["surge_multiplier"],
-            "discount_paise": ride["discount_paise"],
-            "total_paise": ride["total_fare_paise"]
-        }
+        if ride["total_fare_paise"] is not None:
+            ride["fare"] = {
+                "slab_total_paise": ride["base_fare_paise"],
+                "base_fare_paise": ride["base_fare_paise"],
+                "surge_multiplier": ride["surge_multiplier"],
+                "discount_paise": ride["discount_paise"],
+                "total_paise": ride["total_fare_paise"]
+            }
     return ride
+
+def get_ride(conn, ride_id: int) -> dict:
+    row = rides_repo.get_ride(conn, ride_id)
+    if not row:
+        raise NotFoundError("RIDE_NOT_FOUND", "Ride not found")
+    return _format_ride(conn, row)
+
+def get_user_rides(conn, user_id: int, status: Optional[str]) -> dict:
+    if not users_repo.get_by_id(conn, user_id):
+        raise NotFoundError("USER_NOT_FOUND", "User not found")
+    rows = rides_repo.get_rides_by_user(conn, user_id, status)
+    return {"rides": [_format_ride(conn, r) for r in rows]}
+
+def get_driver_rides(conn, driver_id: int, status: Optional[str]) -> dict:
+    if not drivers_repo.get_by_id(conn, driver_id):
+        raise NotFoundError("DRIVER_NOT_FOUND", "Driver not found")
+    rows = rides_repo.get_rides_by_driver(conn, driver_id, status)
+    return {"rides": [_format_ride(conn, r) for r in rows]}
 
 def end_ride(conn, ride_id: int, e_lat: float, e_lng: float, now: datetime) -> dict:
     with transaction(conn):
