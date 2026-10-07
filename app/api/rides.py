@@ -25,6 +25,10 @@ def book_ride(ride: RideBook, request: Request, db = Depends(get_db), clock = De
 def end_ride(ride_id: int, req: RideEnd, db = Depends(get_db), clock = Depends(get_clock)):
     return rides_service.end_ride(db, ride_id, req.end_location.lat, req.end_location.lng, clock.now())
 
+@router.post("/{ride_id}/cancel")
+def cancel_ride(ride_id: int, db = Depends(get_db), clock = Depends(get_clock)):
+    return rides_service.cancel_ride(db, ride_id, clock.now())
+
 @router.get("/{ride_id}")
 def get_ride(ride_id: int, db = Depends(get_db)):
     return rides_service.get_ride(db, ride_id)
