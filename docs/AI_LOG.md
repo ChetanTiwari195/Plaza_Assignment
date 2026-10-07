@@ -37,5 +37,9 @@
 
 ## PR 10: Cancellation fee (Bonus)
 - **Prompted:** Add cancellation endpoint computing a 5% fee on surged fare.
-- **Rejected/Rewritten:** Did not modify the original `.compute()` engine to handle 0-distance specifically. Used `.compute(..., distance_km=0, ...)` explicitly to get the minimum fare before calculating the 5%.
 - **Why:** The existing domain logic already cleanly handles 0 distance by falling back to `min_fare_paise`, allowing maximum reuse and minimizing bugs.
+
+## PR 11: Concurrency proof (Bonus)
+- **Prompted:** Add documentation explaining how the system handles race conditions when multiple users request the same driver.
+- **Rejected/Rewritten:** Did not introduce Redis distributed locks or complex queuing mechanisms.
+- **Why:** Pure ponytail. A simple SQLite `UPDATE ... WHERE ...` with a `rowcount` check perfectly implements an optimistic check-and-set concurrency model with zero external dependencies.
