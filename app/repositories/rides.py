@@ -37,6 +37,14 @@ def get_available_drivers_by_type(conn: sqlite3.Connection, car_type: str) -> li
     cur = conn.execute("SELECT * FROM drivers WHERE status = 'AVAILABLE' AND car_type = ?", (car_type,))
     return cur.fetchall()
 
+def get_available_drivers(conn: sqlite3.Connection) -> list[sqlite3.Row]:
+    cur = conn.execute("SELECT lat, lng FROM drivers WHERE status = 'AVAILABLE'")
+    return cur.fetchall()
+
+def get_ongoing_rides(conn: sqlite3.Connection) -> list[sqlite3.Row]:
+    cur = conn.execute("SELECT pickup_lat, pickup_lng FROM rides WHERE status = 'ONGOING'")
+    return cur.fetchall()
+
 def get_rides_by_user(conn: sqlite3.Connection, user_id: int, status: Optional[str]) -> list[sqlite3.Row]:
     query = "SELECT * FROM rides WHERE user_id = ?"
     params = [user_id]

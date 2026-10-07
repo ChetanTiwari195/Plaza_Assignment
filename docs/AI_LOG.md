@@ -26,3 +26,8 @@
 - **Prompted:** Add ride history queries for users and drivers with optional status filtering.
 - **Rejected/Rewritten:** Avoided creating dedicated new endpoints under `/rides` for querying by user or driver ID. Instead attached them to the `/users/{id}/rides` and `/drivers/{id}/rides` endpoints.
 - **Why:** RESTful resource hierarchies keep the API surface intuitive. Using simple SQLite `ORDER BY id DESC` keeps pagination absent per requirements while maintaining chronological correctness.
+
+## PR 8: Surge pricing (Bonus)
+- **Prompted:** Add surge pricing and admin configuration for surge mode.
+- **Rejected/Rewritten:** Didn't build a complex rules engine. Used a simple dictionary `SURGE_MODES` and a simple python protocol. Did not query the database for supply/demand with complex geofencing SQL.
+- **Why:** YAGNI again. Fetching all available drivers / ongoing rides and doing Python haversine is O(N) where N is small, completely sufficient for this MVP, matching ponytail minimalism.
