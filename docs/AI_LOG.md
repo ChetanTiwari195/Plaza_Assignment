@@ -29,5 +29,9 @@
 
 ## PR 8: Surge pricing (Bonus)
 - **Prompted:** Add surge pricing and admin configuration for surge mode.
-- **Rejected/Rewritten:** Didn't build a complex rules engine. Used a simple dictionary `SURGE_MODES` and a simple python protocol. Did not query the database for supply/demand with complex geofencing SQL.
 - **Why:** YAGNI again. Fetching all available drivers / ongoing rides and doing Python haversine is O(N) where N is small, completely sufficient for this MVP, matching ponytail minimalism.
+
+## PR 9: Matching Strategy (Bonus)
+- **Prompted:** Add configuration for matching strategy (nearest vs highest rated).
+- **Rejected/Rewritten:** Did not use a complex Strategy design pattern or dynamic imports. Just added an `if matching_strategy` block changing the `lambda` sort key of the candidates array.
+- **Why:** Keeping the dispatch logic in one readable linear function makes it much easier to reason about tie-breaking rules compared to scattered objects.
